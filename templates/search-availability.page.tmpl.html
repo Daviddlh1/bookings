@@ -1,4 +1,4 @@
-{{template "base"}}
+{{template "base" .}}
 
 {{define "content"}}
 <div class="container">
@@ -9,7 +9,8 @@
                 Search for availability
             </h1>
 
-            <form action="reservation.html" method="get" novalidate class="needs-validation">
+            <form action="/search-availability" method="post" novalidate class="needs-validation">
+                <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
                 <div class="row">
                     <div class="col">
                         <div id="reservation-dates" class="row">
@@ -25,14 +26,6 @@
                 <hr>
                 <button type="submit" class="btn btn-primary">Search Availability</button>
             </form>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col">
-            <p id="myParragraph">
-                This is some page
-            </p>
-            <button id="myButton" type="button" class="btn">Click me</button>
         </div>
     </div>
 </div>

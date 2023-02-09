@@ -1,4 +1,4 @@
-{{template "base"}}
+{{template "base" .}}
 
 {{define "content"}}
 <div class="container">
@@ -7,7 +7,7 @@
             <h1>
                 Make Reservation
             </h1>
-            <form action="needs-validation" method="post" novalidate>
+            <form action="/search-availability" method="post" novalidate>
                 <div class="form-group mt-5">
                     <label for="first_name">First name:</label>
                     <input type="text" id="first_name" name="first_name" class="form-control" required
