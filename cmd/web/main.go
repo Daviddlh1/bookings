@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/gob"
 	"fmt"
 	"log"
 	"net/http"
@@ -8,6 +9,7 @@ import (
 
 	"github.com/Daviddlh1/bookings/internal/config"
 	"github.com/Daviddlh1/bookings/internal/handlers"
+	"github.com/Daviddlh1/bookings/internal/models"
 	"github.com/Daviddlh1/bookings/internal/render"
 	"github.com/alexedwards/scs/v2"
 )
@@ -19,7 +21,27 @@ var session *scs.SessionManager
 
 // main is the main application function
 func main() {
+	err := run()
+	if err != nil {
+		log.Fatal(err)
+	}
 
+	fmt.Printf("Starting application on port %s\n", portNumber)
+	srv := &http.Server{
+		Addr:    portNumber,
+		Handler: routes(&app),
+	}
+
+	err = srv.ListenAndServe()
+	log.Fatal(err)
+}
+
+func run() error {
+	// registering the Reservation type wto store it in my session
+	gob.Register(models.Reservation{})
+
+	// parmeter to set the cache
+	//change it to true for the deploy
 	app.InProduction = false
 
 	// configuring the session
@@ -36,6 +58,7 @@ func main() {
 	tc, err := render.CreateTemplateCache()
 	if err != nil {
 		log.Fatal("cannot create template cache")
+		return err
 	}
 
 	// here the cacche is being set
@@ -49,13 +72,5 @@ func main() {
 
 	// sets the config variable at the render package
 	render.NewTemplates(&app)
-
-	fmt.Printf("Starting application on port %s\n", portNumber)
-	srv := &http.Server{
-		Addr:    portNumber,
-		Handler: routes(&app),
-	}
-
-	err = srv.ListenAndServe()
-	log.Fatal(err)
+	return nil
 }
