@@ -129,6 +129,9 @@ func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
+
+	m.App.Session.Put(r.Context(), "reservation", reservation)
+	http.Redirect(w, r, "/reservation-summary", http.StatusSeeOther)
 }
 
 // AvailabilityJSON handles request for availability and send JSON response
@@ -147,4 +150,22 @@ func (m *Repository) AvailabilityJSON(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Contnet-type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	w.Write(out)
+}
+
+func (m *Repository) ReservatioSummary(w http.ResponseWriter, r *http.Request) {
+	reservation, ok := m.App.Session.Get(r.Context(), "reservation").(models.Reservation)
+	if !ok {
+		m.App.Session.Put(r.Context(), "error", "Can't get reservation from session")
+		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+		log.Println("Cannot get item from session")
+		return
+	}
+
+	m.App.Session.Remove(r.Context(), "reservation")
+	data := make(map[string]any)
+	data["reservation"] = reservation
+
+	render.RenderTemplate(w, r, "reservation-summary.page.tmpl.html", &models.TemplateData{
+		Data: data,
+	})
 }
